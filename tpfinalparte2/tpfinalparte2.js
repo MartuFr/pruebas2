@@ -3,12 +3,12 @@ let imagen = [];
 let texto = [];
 let boton=[];
 let miFuente;
-let estado="juego";
+let estado="tutorial";
 let tiempoinicio;
 let tiempolimite=10000
 
   function preload() {
-  for (let i=0; i<3; i++) {
+  for (let i=0; i<4; i++) {
     imagen[i] = loadImage("data/imagen"+i+".png");
   }
   for (let a=0; a<2; a++) {
@@ -31,65 +31,85 @@ function setup() {
 function draw() {
   background (200);
 
-  if (estado==="juego") {
+  if (estado==="juego") { //logica de estados
     objJuego.dibujar();
 
     let tiempopaso = millis()-tiempoinicio;
-    if (tiempopaso>=tiempolimite) {
+    if (tiempopaso>=tiempolimite) { //si se excede tiempo sin chocarse gana
       estado="ganaste";
+    }
+    if (objJuego.personaje.vida === false) {
+      estado="perder";
     }
   } else if (estado==="perder") {
     mostrarPantallaPerdiste();
   } else if (estado==="ganaste") {
     mostrarPantallaGanaste();
+  } else if (estado==="tutorial") {
+    mostrarPantallaTutorial();
   }
 }
+//PANTALLAS PERDISTE , GANASTE Y TUTORIAL
 function mostrarPantallaPerdiste() {
-  background(255, 0, 0);
-  fill(0)
+  background(144, 39, 66);
+  fill(255)
     textSize(22);
+  image(boton[1], 210, 190, 230, 60);
 
-  cargaBotones(boton[1], 320, 240, 100, 50, CENTER);
-  text(texto[0], 10, 30, 360);
+  text(texto[0], 10, 440, 360);
   text(texto[1], 10, 30, 360);
-  text(texto[4], 10, 30, 360);
-  text(texto[5], 10, 30, 360);
+  text(texto[5], 175, 300, 360);
+  textSize(100);
+  text(texto[4], 140, 180, 360);
 }
 function mostrarPantallaGanaste() {
-  background(177,182,136);
-  fill(0);
+  background(177, 182, 136);
+  fill(255);
   textSize(22);
 
-  cargaBotones(boton[1], 320, 240, 230, 60, CENTER);
+  image(boton[1], 210, 190, 230, 60);
+
   text(texto[0], 10, 440, 360);
-  text(texto[1], 10,30, 360);
+  text(texto[1], 10, 30, 360);
   text(texto[3], 190, 300, 360);
   textSize(100);
-  text(texto[2], 150, 200, 360);
-  
+  text(texto[2], 150, 180, 360);
+}
+function mostrarPantallaTutorial() {
+  background(0);
+  image(imagen[0], 0, 0, width, height);
+  image(imagen[3], 245, 300, 160, 160);
+  fill(255)
+    textSize(18);
+  text(texto[7], 150, 275, 360);
+
+  image(boton[0], 210, 190, 230, 60);
+  textSize(40);
+  text(texto[6], 150, 180, 360);
 }
 
-function cargaBotones(imag, x, y, ancho, alto, alinea) {
-  imageMode(alinea);
-  image(imag, x, y, ancho, alto);
-}
+//BOTONES
+
 function detectarBoton(x, y, an, al) {
   return mouseX > x && mouseX < x + an && mouseY > y && mouseY < y + al;
 }
-
-function mousePressed() {
-  if (estado === "ganaste" && detectarBoton(270, 215, 100, 50)) {
-    reiniciarJuego();
-  } else if (estado === "perder" && detectarBoton(270, 215, 100, 50)) {
-    reiniciarJuego();
-  }
-}
-
 function reiniciarJuego() {
   estado = "juego";
   tiempoinicio = millis();
   objJuego = new juego();
-  
+}
+
+//CAMBIO DE ESTADO
+function mousePressed() {
+  if (estado === "tutorial" && detectarBoton(210, 190, 230, 60)) {
+    reiniciarJuego();
+    estado= "juego";
+  }
+  if (estado === "ganaste" && detectarBoton(210, 190, 230, 60)) {
+    estado= "tutorial";
+  } else if (estado === "perder" && detectarBoton(210, 190, 230, 60)) {
+    estado= "tutorial";
+  }
 }
 
 

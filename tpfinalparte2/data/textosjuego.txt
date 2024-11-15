@@ -4,3 +4,5 @@ GANASTE!
 Lograste esquivar las balas
 PERDISTE!
 No lograste esquivar las balas
+Preparate para jugar!
+USA LA FLECHA IZQUIERDA PARA ESQUIVAR HACIA LA IZQUIERDA O LA DERECHA PARA ESQUIVAR HACIA LA DERECHA

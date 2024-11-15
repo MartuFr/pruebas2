@@ -1,7 +1,7 @@
 class balas {
   constructor(posX, posY) {
-    this.posX = posX; //posX 283
-    this.posY= posY; //posY 135
+    this.posX = posX; 
+    this.posY= posY; 
     this.diam = 14;
     this.vel = 6; //velocidad
   }

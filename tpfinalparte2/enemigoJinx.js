@@ -7,34 +7,32 @@ class enemigoJinx {
   }
 
   dibujar() {
-     image(this.imagen, this.posX, this.posY);
+    image(this.imagen, this.posX, this.posY);
   }
-  
+
   mover() {
-    if (frameCount % 60 === 0) { // Cada segundo aproximadamente
-      this.posX = random(0, width - this.imagen.width);
+    if (frameCount % 60 === 0) { // Cada 60frames(1 segundo aprox)
+      this.posX = random(0, width - this.imagen.width);//cambia posicion a lugar random en X
       this.dispararBalas(); // Dispara una nueva bala al cambiar de posición
-  }
+    }
   }
   dispararBalas() {
-    if (this.bala === null) { // Verifica si no hay una bala activa.  Crea una nueva bala si no hay una ya existente
-    let balaPosX = this.posX + this.imagen.width/2- 20; // Empieza en el 20% desde la izquierda de la imagen
-    let balaPosY = this.posY + 130; // Un poco más abajo que la posición Y del cañón
-    this.bala= new balas(balaPosX, balaPosY); // Crear una nueva bala en la posición calculada
+    if (this.bala === null) { //si no hay una bala ya dispara otra
+      let balaPosX = this.posX + this.imagen.width/2- 20;
+      let balaPosY = this.posY + 130; // para que bala salga por debajo de cañon
+      this.bala= new balas(balaPosX, balaPosY); // crea la bala teniendo en cuenta la posx e y
+    }
   }
-  }
-      
-      gestionarBalas() {
-  if (this.bala !== null) {
+
+  gestionarBalas() {
+    if (this.bala !== null) { // si la bala no esta eliminada se dibuja y mueve
       this.bala.dibujar();
       this.bala.mover();
 
       // Si la bala sale de la pantalla, se elimina
       if (this.bala.posY > height) {
-        this.bala = null; // Eliminar la bala. permitirá disparar otra.
+        this.bala = null; // elimina bala para q se pueda dibujar otra
       }
     }
   }
-  
 }
-  
