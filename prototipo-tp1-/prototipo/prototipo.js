@@ -2,14 +2,11 @@
 TP1-Etapa 2; Prototipo.
  Julia Ferrari, Michelle González,
  Micaela Floch, Lucas Gordillo,
- Pilar Fernández, Martina Furh
+ Pilar Fernández, Martina Fuhr
  Comisión Matías.
  */
-let ufanObjs = [];
-let centro;
-let cantidadOrb = 14;
-let maxRadio = 400; // más separación entre órbitas
 
+ 
 let trazos = [];
 let cantidad = 4;
 let cant = 20; // cantidad de filas y columnas
@@ -18,9 +15,10 @@ let espaciadoX = 50; // espacio horizontal
 let espaciadoY = 5; // espacio vertical
 let imgWidth = 60;  // angosto
 let imgHeight = 20; // alto
+let avance = 0;
 let vel = 1;
 let estado = "inicial";
-let mostrarFilas = []; //arreglo boolean para saber qué filas dibujar
+let opacidadFilas = []; //arreglo boolean para saber qué filas dibujar
 
 function preload() {
   for (let i = 0; i < cantidad; i++) {
@@ -30,105 +28,82 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(800, 800);
-  centro = createVector(width / 2, height / 2);
-
+  createCanvas(500, 500);
+  imageMode(CENTER);
+  //colorMode(HSB, 360, 100, 100);
+  background(255);
   for (let i = 0; i < cant; i++) {
-    for (let g = 0; g < cant; g++) {
-      let desplazamientoX = (i % 2 === 1) ? imgWidth / 2 : 0;
-      let x = g * (imgWidth + espaciadoX) + imgWidth / 2 + desplazamientoX;
-      let y = i * (imgHeight + espaciadoY) + imgHeight / 2;
-
-      ufanObjs.push({
-        actual: createVector(x, y),
-        destino: createVector(x, y),
-        angulo: random(TWO_PI),
-        radio: 0,
-        vel: random(0.01, 0.03),
-        i: i,
-        g: g,
-        trazoIndex: 0
-      });
-    }
-  }
-
-  calcularOrbitas();
-  for (let i = 0; i < cant; i++) {
-    mostrarFilas[i] = true;
-  }
+  opacidadFilas[i] = 255;
 }
-
-function calcularOrbitas() {
-  let porOrbita = int(ufanObjs.length / cantidadOrb);
-  let index = 0;
-
-  for (let o = 0; o < cantidadOrb; o++) {
-    let radio = map(o, 0, cantidadOrb - 1, 50, maxRadio);
-    let cantidadEnEsta = porOrbita;
-    let angEspaciado = TWO_PI / cantidadEnEsta;
-
-    for (let i = 0; i < cantidadEnEsta && index < ufanObjs.length; i++) {
-      let u = ufanObjs[index];
-      u.radio = radio;
-      u.angulo = i * angEspaciado;
-      index++;
-    }
-  }
 }
 
 function draw() {
   background(255);
 
-  for (let u of ufanObjs) {
-    let i = u.i;
-    let g = u.g;
-
-    if (!mostrarFilas[i]) continue;
-
-    if (estado === "inicial" || estado === "sinfilas") {
-      u.actual.x -= vel;
-
-      if (u.actual.x < -imgWidth) {
-        let maxX = Math.max(...ufanObjs.filter(obj => obj.i === i).map(obj => obj.actual.x));
-        u.actual.x = maxX + imgWidth + espaciadoX;
-      }
-
-      let desplazamientoX = (i % 2 === 1) ? imgWidth / 2 : 0;
-      u.actual.y = i * (imgHeight + espaciadoY) + imgHeight / 2;
-    } else if (estado === "orbita") {
-      u.angulo += u.vel;
-      let destinoX = centro.x + cos(u.angulo) * u.radio;
-      let destinoY = centro.y + sin(u.angulo) * u.radio;
-      u.destino.set(destinoX, destinoY);
-
-      // interpolación hacia la órbita
-      u.actual.x = lerp(u.actual.x, u.destino.x, 0.1);
-      u.actual.y = lerp(u.actual.y, u.destino.y, 0.1);
-    }
-
-    push();
-    translate(u.actual.x, u.actual.y);
-    if (estado === "orbita") {
-      rotate(u.angulo + HALF_PI);
-    }
-    image(trazos[u.trazoIndex], -imgWidth / 2, -imgHeight / 2, imgWidth, imgHeight);
-    pop();
+  avance += vel;
+  if (avance > imgWidth + espaciadoX) {
+    avance = 0; // resetea el avance para que la animación se repita
   }
 
-  // Control de estados
-  if (keyIsDown(49)) {
-    estado = "sinfilas";
+  if (estado !== "orbita" && estado !== "pegarextremo") {
     for (let i = 0; i < cant; i++) {
-      mostrarFilas[i] = (i % 2 === 0);
+      if (opacidadFilas[i] <= 0) continue;
+      tint(255, opacidadFilas[i]);
+
+      for (let g = 0; g < cant; g++) {
+        let desplazamientoX = (i % 2 === 1) ? imgWidth / 2 : 0;
+        let x = g * (imgWidth + espaciadoX) + imgWidth / 2 + desplazamientoX - avance;
+        let y = i * (imgHeight + espaciadoY) + imgHeight / 2;
+
+        let img = trazos[0];
+        image(img, x, y, imgWidth, imgHeight);
+      }
+    }noTint();
+  }
+
+  if (estado === "inicial") {
+  for (let i = 0; i < cant; i++) {
+    opacidadFilas[i] = min(opacidadFilas[i] + 10, 255); // reaparecen gradualmente
+  }
+} else if (estado === "sinfilas") {
+  for (let i = 0; i < cant; i++) {
+    if (i % 2 !== 0) {
+      opacidadFilas[i] = max(opacidadFilas[i] - 10, 0); // se desvanecen
+    } else {
+      opacidadFilas[i] = min(opacidadFilas[i] + 10, 255); // se aseguran visibles
     }
-  } else if (keyIsDown(50)) {
+  }
+  } else if (estado == "pegarextremo") {
+    let margenIzquierdo = imgWidth / 2 + 10; // 10px de margen izquierdo
+    for (let i = 0; i < cant; i++) {
+      for (let g = 0; g < cant; g++) {
+        let x = margenIzquierdo;
+        let y = i * (imgHeight + espaciadoY) + imgHeight / 2;
+        let img = trazos[0];
+        image(img, x, y, imgWidth, imgHeight);
+      }
+    }
+  } else if (estado== "orbita") {
+    translate(width / 2, height / 2); // origen al centro
+
+    for (let i = 0; i < 360 * 5; i += 14) {
+      let angulo = radians(i + frameCount); // animación giratoria
+      let distancia = map(i, 0, 360 * 4, 0, height / 2); // radio creciente
+      let x = distancia * cos(angulo);
+      let y = distancia * sin(angulo);
+
+      image(trazos[0], x, y, imgWidth, imgHeight);
+    }
+  }
+
+
+  if (keyIsDown(49)) { // tecla 1
+    estado = "sinfilas";
+  } else if (keyIsDown(50)) { // tecla 2
+    estado = "pegarextremo";
+  } else if (keyIsDown(51)) { // tecla 3
     estado = "orbita";
   } else {
     estado = "inicial";
-    for (let i = 0; i < cant; i++) {
-      mostrarFilas[i] = true;
-    }
   }
 }
-
- 
